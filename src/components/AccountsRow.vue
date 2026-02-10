@@ -11,10 +11,15 @@ const props = defineProps<{
 
 const store = useAccountsStore();
 const model = ref<Account>({ ...props.account });
+const labelText = ref('');
 
 watch(
     () => props.account,
-    v => (model.value = { ...v }),
+    v => {
+        model.value = { ...v };
+        labelText.value = v.label?.map(l => l.text).join('; ') || '';
+    },
+    { immediate: true }
 );
 
 function parseLabels(value: string) {
@@ -29,10 +34,19 @@ function validate() {
     const errors: any = {};
 
     if (!model.value.type) errors.type = true;
-    if (!model.value.login) errors.login = true;
 
-    if (model.value.type === 'LOCAL' && !model.value.password) {
-        errors.password = true;
+    if (!model.value.login || model.value.login.length > 100) {
+        errors.login = true;
+    }
+
+    if (model.value.type === 'LOCAL') {
+        if (!model.value.password || model.value.password.length > 100) {
+            errors.password = true;
+        }
+    }
+
+    if (labelText.value.length > 50) {
+        errors.label = true;
     }
 
     model.value.errors = errors;
@@ -61,17 +75,18 @@ function onLabelBlur(value: string) {
 
 <template>
     <div class="row">
-        <el-input placeholder="Метка" @blur="onLabelBlur($event.target.value)" />
+        <el-input v-model="labelText" placeholder="Метка" maxlength="50" @blur="onLabelBlur(labelText)" />
 
         <el-select v-model="model.type" placeholder="Тип" @change="onTypeChange" :class="{ error: model.errors?.type }">
             <el-option label="LDAP" value="LDAP" />
             <el-option label="Локальная" value="LOCAL" />
         </el-select>
 
-        <el-input v-model="model.login" placeholder="Логин" @blur="save" :class="{ error: model.errors?.login }" />
+        <el-input v-model="model.login" placeholder="Логин" @blur="save" maxlength="100"
+            :class="{ error: model.errors?.login }" />
 
-        <el-input v-if="model.type === 'LOCAL'" v-model="model.password" type="password" placeholder="Пароль"
-            @blur="save" :class="{ error: model.errors?.password }" />
+        <el-input v-if="model.type === 'LOCAL'" v-model="model.password" type="password" show-password maxlength="100"
+            placeholder="Пароль" @blur="save" :class="{ error: model.errors?.password }" />
 
         <el-button type="danger" circle @click="store.remove(index)" class="last-item">
             ✕

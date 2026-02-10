@@ -22,7 +22,7 @@ onMounted(() => {
 
         <div class="info">
             <el-text type="info">
-                Метки вводятся через <b>;</b>
+                Для указания нескольких меток для одной пары логин/пароль используйте разделитель <b>;</b>
             </el-text>
         </div>
 
@@ -42,7 +42,7 @@ onMounted(() => {
 .header {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: center;
     margin-bottom: 12px;
 }
 
@@ -55,6 +55,6 @@ onMounted(() => {
 }
 
 .info {
-    margin-bottom: 18px;
+    margin-bottom: 24px;
 }
 </style>
